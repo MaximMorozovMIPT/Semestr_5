@@ -8,31 +8,52 @@ np.set_printoptions(threshold=sys.maxsize)
 # Number of unknown variables in the system of linear equations
 numOfUnknown = 100
 
+def CreateMatrix(type):
+    ####################################################################################################
+    # Matrix creation
+    matrix = np.zeros((numOfUnknown, numOfUnknown + 1 - type))
+
+    #First equation
+    for i in range (numOfUnknown):
+        matrix[0][i] = 1
+
+    # 2-99 equations
+    for i in range (1, numOfUnknown - 1):
+        for j in range (numOfUnknown):
+            if i == j:
+                matrix[i][j] = 10
+            if i == j + 1 or i == j - 1:
+                matrix[i][j] = 1
+
+    # 100 equation
+    matrix[numOfUnknown - 1, numOfUnknown - 2] = 1
+    matrix[numOfUnknown - 1, numOfUnknown - 1] = 1
+
+    # equation values
+    if type == 0:
+        for i in range (numOfUnknown):
+            matrix[i][numOfUnknown] = 100 - i
+    return matrix
+
 ####################################################################################################
-# Matrix creation
-matrix = np.zeros((numOfUnknown, numOfUnknown + 1))
-
-#First equation
-for i in range (numOfUnknown):
-    matrix[0][i] = 1
-
-# 2-99 equations
-for i in range (1, numOfUnknown - 1):
-    for j in range (numOfUnknown):
-        if i == j:
-            matrix[i][j] = 10
-        if i == j + 1 or i == j - 1:
-            matrix[i][j] = 1
-
-# 100 equation
-matrix[numOfUnknown - 1, numOfUnknown - 2] = 1
-matrix[numOfUnknown - 1, numOfUnknown - 1] = 1
-
-# equation values
-for i in range (numOfUnknown):
-    matrix[i][numOfUnknown] = 100 - i
-
-np.savetxt('matrix.txt', matrix, fmt='%.0f')
+def PrintMatrix(matrix):
+    f1 = open('matrix.txt', 'w')
+    for k in range (numOfUnknown):
+        count = 0
+        for i in range (numOfUnknown):
+            if i != numOfUnknown - 1:
+                if matrix[k][i] == 0:
+                    continue
+                if count != 0:
+                    f1.write('+ ')
+                f1.write(str(int(matrix[k][i])) + '*x' + str(i + 1) + ' ')
+                count += 1
+            else:
+                if matrix[k][i] == 0:
+                    f1.write(' = ' + str(int(matrix[k][numOfUnknown])) + '\n')
+                else:
+                    f1.write(str(int(matrix[k][i])) + '*x' + str(i + 1))
+                    f1.write(' = ' + str(int(matrix[k][numOfUnknown])) + '\n')
 
 ####################################################################################################
 def GaussMethod(matrix, numOfUnknown):
@@ -54,7 +75,10 @@ def GaussMethod(matrix, numOfUnknown):
             solution[i] = solution[i] - matrix[i][j] * solution[j] # Substituting known variables from [numOfUnknown - 1] to [i + 1]
         solution[i] = solution[i] / matrix[i][i]                   # Find i variable
 
-    np.savetxt('solutionGauss.txt', solution, fmt='%.5f')
+    f1 = open('solutionGauss.txt', 'w')
+    for i in range (numOfUnknown):
+        f1.write('x' + str(i + 1) + ' = ' + str(round(solution[i], 6)) + '\n')
+    return solution
 
 ####################################################################################################
 def SeidelMethod(matrix, numOfUnknown):
@@ -90,10 +114,38 @@ def SeidelMethod(matrix, numOfUnknown):
                 if abs(diff) < 0.0001:
                     numOfExactSolutions += 1
             if numOfExactSolutions == numOfUnknown:
-                np.savetxt('solutionSeidel.txt', solution[i % 2], fmt='%.5f')   
-                break
+                f1 = open('solutionSeidel.txt', 'w')
+                for l in range (numOfUnknown):
+                    f1.write('x' + str(l + 1) + ' = ' + str(round(solution[i % 2][l], 6)) + '\n')
+                return solution[i % 2]
         i += 1
-     
+
+####################################################################################################
+def countNorm(matr):
+    sum = np.zeros(numOfUnknown)
+    for i in range (numOfUnknown):
+        for j in range (numOfUnknown):
+            sum[i] += matr[i][j]
+    resNorm = np.amax(sum)
+    return resNorm
+
+def countMu(matr):
+    return countNorm(matr) * countNorm(np.linalg.inv(matr))
+
+####################################################################################################  
 # Run methods
-GaussMethod(matrix, numOfUnknown)
-SeidelMethod(matrix, numOfUnknown)
+matrix1 = CreateMatrix(0)
+matrix2 = CreateMatrix(0)
+PrintMatrix(matrix1)
+
+gauss = GaussMethod(matrix1, numOfUnknown)
+seidel = SeidelMethod(matrix2, numOfUnknown)
+
+matr = CreateMatrix(1)
+f1 = open('additional.txt', 'w')
+f1.write('Condition number mu = ' + str(countMu(matr)) + '\n')
+
+residual = gauss - seidel
+for i in range (numOfUnknown):
+    residual[i] = abs(residual[i])
+f1.write('Residual value = ' + str(np.amax(residual))) 
