@@ -1,0 +1,2 @@
+Condition number mu = 101.03103630798287
+Residual value = 1.0929038921858591e-05
