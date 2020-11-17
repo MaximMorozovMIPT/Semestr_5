@@ -1,0 +1,18 @@
+Solutions of equasion y = x * exp(-x^2) by Newton and simple methods
+Number of iterations in Newton method = 4 and if f(x) = 0 then x = 4.1509442503260066e-16
+Number of iterations in simple method = 33 and if f(x) = 0 then x = 5.729300012344897e-11
+
+Solution of problem in book Aristova 
+Maximum value of f(x) = 0.42888194248035333 and x = 0.7071067811865476
+Find left and right values x of f(x) = fmax / 2 
+
+With Newton method 
+Number of iterations = 3 and if f(x) = fmax / 2 then x left = 0.22556426151270592
+Number of iterations = 3 and if f(x) = fmax / 2 then x right = 1.3585832161962172
+Delta x = 1.1330189546835112
+
+With simple method 
+Number of iterations = 16 and if f(x) = fmax / 2 then x left = 0.22574734169864297
+Number of iterations = 33 and if f(x) = fmax / 2 then x right = 1.3585916998014362
+Delta x = 1.1328443581027932
+
